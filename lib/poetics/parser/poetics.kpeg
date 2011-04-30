@@ -1,0 +1,11 @@
+%% name = Poetics::Parser
+
+root      = - number? - !.
+
+-         = (" " | "\t")*
+number    = position < /\d+/ > ~number(text)
+
+# keep track of column and line
+line      = { current_line }
+column    = { current_column }
+position  = line:l column:c { position(l, c) }
