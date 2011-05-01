@@ -1,0 +1,140 @@
+#!/usr/bin/env rbx
+#
+# vim: filetype=ruby
+
+$:.unshift File.expand_path('../../lib', __FILE__)
+
+require 'readline'
+require 'poetics'
+
+class Poetics::Script
+  HISTORY = File.expand_path "~/.poetics_history"
+
+  attr_accessor :prompt
+
+  def initialize
+    @evals = []
+    @script = nil
+    @history = []
+  end
+
+  def options(argv=ARGV)
+    options = Rubinius::Options.new "Usage: poetics [options] [script]", 20
+
+    options.on "-", "Read and evaluate code from STDIN" do
+      @evals << STDIN.read
+    end
+
+    options.on "-c", "FILE", "Check the syntax of FILE" do |f|
+      begin
+        begin
+          Poetics::Parser.parse_file f
+        rescue => e
+          e.render
+          exit 1
+        end
+
+        puts "Syntax OK"
+        exit 0
+      end
+    end
+
+    options.on "-e", "CODE", "Execute CODE" do |e|
+      @evals << e
+    end
+
+    options.on "-v", "--version", "Display the version" do
+      puts Poetics::COMMAND_VERSION
+    end
+
+    options.on "-h", "--help", "Display this help" do
+      puts options
+      exit 0
+    end
+
+    options.doc ""
+
+    rest = options.parse(argv)
+    @script ||= rest.first
+  end
+
+  def evals
+    return if @evals.empty?
+
+    Poetics::CodeLoader.evaluate @evals.join("\n")
+  end
+
+  def script
+    return unless @script
+
+    if File.exists? @script
+      Poetics::CodeLoader.execute_file @script
+    else
+      STDERR.puts "Unable to find '#{@script}' to run"
+      exit 1
+    end
+  end
+
+  def load_history
+    return unless File.exists? HISTORY
+
+    File.open HISTORY, "r" do |f|
+      f.each { |l| Readline::HISTORY << l }
+    end
+  end
+
+  def save_history
+    File.open HISTORY, "w" do |f|
+      @history.last(100).map { |s| f.puts s }
+    end
+  end
+
+  def record_history(str)
+    @history << str
+  end
+
+  def start_prompt
+    @prompt = "> "
+  end
+
+  def continue_prompt
+    @prompt = ". "
+  end
+
+  def repl
+    return if @script
+    load_history
+    start_prompt
+
+    begin
+      snippet = ""
+      while str = Readline.readline(prompt)
+        break if str.nil? and snippet.empty?
+        next if str.empty?
+
+        snippet << str
+        begin
+          value = Poetics::CodeLoader.evaluate snippet
+          p value
+
+          record_history snippet
+          snippet = ""
+          start_prompt
+        rescue => e
+          STDERR.puts e
+        end
+      end
+    ensure
+      save_history
+    end
+  end
+
+  def main
+    options
+    evals
+    script
+    repl
+  end
+end
+
+Poetics::Script.new.main
