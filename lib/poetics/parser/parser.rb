@@ -314,7 +314,7 @@ class Poetics::Parser
     #
   def setup_foreign_grammar; end
 
-  # root = - number? - !.
+  # root = - value? - end
   def _root
 
     _save = self.pos
@@ -325,7 +325,7 @@ class Poetics::Parser
         break
       end
       _save1 = self.pos
-      _tmp = apply(:_number)
+      _tmp = apply(:_value)
       unless _tmp
         _tmp = true
         self.pos = _save1
@@ -339,10 +339,7 @@ class Poetics::Parser
         self.pos = _save
         break
       end
-      _save2 = self.pos
-      _tmp = get_byte
-      _tmp = _tmp ? nil : true
-      self.pos = _save2
+      _tmp = apply(:_end)
       unless _tmp
         self.pos = _save
       end
@@ -350,6 +347,16 @@ class Poetics::Parser
     end # end sequence
 
     set_failed_rule :_root unless _tmp
+    return _tmp
+  end
+
+  # end = !.
+  def _end
+    _save = self.pos
+    _tmp = get_byte
+    _tmp = _tmp ? nil : true
+    self.pos = _save
+    set_failed_rule :_end unless _tmp
     return _tmp
   end
 
@@ -375,7 +382,151 @@ class Poetics::Parser
     return _tmp
   end
 
-  # number = position < /\d+/ > {number(text)}
+  # value = (number | boolean)
+  def _value
+
+    _save = self.pos
+    while true # choice
+      _tmp = apply(:_number)
+      break if _tmp
+      self.pos = _save
+      _tmp = apply(:_boolean)
+      break if _tmp
+      self.pos = _save
+      break
+    end # end choice
+
+    set_failed_rule :_value unless _tmp
+    return _tmp
+  end
+
+  # boolean = position (true | false | null | undefined)
+  def _boolean
+
+    _save = self.pos
+    while true # sequence
+      _tmp = apply(:_position)
+      unless _tmp
+        self.pos = _save
+        break
+      end
+
+      _save1 = self.pos
+      while true # choice
+        _tmp = apply(:_true)
+        break if _tmp
+        self.pos = _save1
+        _tmp = apply(:_false)
+        break if _tmp
+        self.pos = _save1
+        _tmp = apply(:_null)
+        break if _tmp
+        self.pos = _save1
+        _tmp = apply(:_undefined)
+        break if _tmp
+        self.pos = _save1
+        break
+      end # end choice
+
+      unless _tmp
+        self.pos = _save
+      end
+      break
+    end # end sequence
+
+    set_failed_rule :_boolean unless _tmp
+    return _tmp
+  end
+
+  # true = "true" {true_value}
+  def _true
+
+    _save = self.pos
+    while true # sequence
+      _tmp = match_string("true")
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      @result = begin; true_value; end
+      _tmp = true
+      unless _tmp
+        self.pos = _save
+      end
+      break
+    end # end sequence
+
+    set_failed_rule :_true unless _tmp
+    return _tmp
+  end
+
+  # false = "false" {false_value}
+  def _false
+
+    _save = self.pos
+    while true # sequence
+      _tmp = match_string("false")
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      @result = begin; false_value; end
+      _tmp = true
+      unless _tmp
+        self.pos = _save
+      end
+      break
+    end # end sequence
+
+    set_failed_rule :_false unless _tmp
+    return _tmp
+  end
+
+  # null = "null" {null_value}
+  def _null
+
+    _save = self.pos
+    while true # sequence
+      _tmp = match_string("null")
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      @result = begin; null_value; end
+      _tmp = true
+      unless _tmp
+        self.pos = _save
+      end
+      break
+    end # end sequence
+
+    set_failed_rule :_null unless _tmp
+    return _tmp
+  end
+
+  # undefined = "undefined" {undefined_value}
+  def _undefined
+
+    _save = self.pos
+    while true # sequence
+      _tmp = match_string("undefined")
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      @result = begin; undefined_value; end
+      _tmp = true
+      unless _tmp
+        self.pos = _save
+      end
+      break
+    end # end sequence
+
+    set_failed_rule :_undefined unless _tmp
+    return _tmp
+  end
+
+  # number = position (real | hex | int)
   def _number
 
     _save = self.pos
@@ -385,8 +536,122 @@ class Poetics::Parser
         self.pos = _save
         break
       end
+
+      _save1 = self.pos
+      while true # choice
+        _tmp = apply(:_real)
+        break if _tmp
+        self.pos = _save1
+        _tmp = apply(:_hex)
+        break if _tmp
+        self.pos = _save1
+        _tmp = apply(:_int)
+        break if _tmp
+        self.pos = _save1
+        break
+      end # end choice
+
+      unless _tmp
+        self.pos = _save
+      end
+      break
+    end # end sequence
+
+    set_failed_rule :_number unless _tmp
+    return _tmp
+  end
+
+  # hexdigits = /[0-9A-Fa-f]/
+  def _hexdigits
+    _tmp = scan(/\A(?-mix:[0-9A-Fa-f])/)
+    set_failed_rule :_hexdigits unless _tmp
+    return _tmp
+  end
+
+  # hex = "0x" < hexdigits+ > {hexadecimal(text)}
+  def _hex
+
+    _save = self.pos
+    while true # sequence
+      _tmp = match_string("0x")
+      unless _tmp
+        self.pos = _save
+        break
+      end
       _text_start = self.pos
-      _tmp = scan(/\A(?-mix:\d+)/)
+      _save1 = self.pos
+      _tmp = apply(:_hexdigits)
+      if _tmp
+        while true
+          _tmp = apply(:_hexdigits)
+          break unless _tmp
+        end
+        _tmp = true
+      else
+        self.pos = _save1
+      end
+      if _tmp
+        text = get_text(_text_start)
+      end
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      @result = begin; hexadecimal(text); end
+      _tmp = true
+      unless _tmp
+        self.pos = _save
+      end
+      break
+    end # end sequence
+
+    set_failed_rule :_hex unless _tmp
+    return _tmp
+  end
+
+  # digits = ("0" | /[1-9]/ /[0-9]/*)
+  def _digits
+
+    _save = self.pos
+    while true # choice
+      _tmp = match_string("0")
+      break if _tmp
+      self.pos = _save
+
+      _save1 = self.pos
+      while true # sequence
+        _tmp = scan(/\A(?-mix:[1-9])/)
+        unless _tmp
+          self.pos = _save1
+          break
+        end
+        while true
+          _tmp = scan(/\A(?-mix:[0-9])/)
+          break unless _tmp
+        end
+        _tmp = true
+        unless _tmp
+          self.pos = _save1
+        end
+        break
+      end # end sequence
+
+      break if _tmp
+      self.pos = _save
+      break
+    end # end choice
+
+    set_failed_rule :_digits unless _tmp
+    return _tmp
+  end
+
+  # int = < digits > {number(text)}
+  def _int
+
+    _save = self.pos
+    while true # sequence
+      _text_start = self.pos
+      _tmp = apply(:_digits)
       if _tmp
         text = get_text(_text_start)
       end
@@ -402,7 +667,96 @@ class Poetics::Parser
       break
     end # end sequence
 
-    set_failed_rule :_number unless _tmp
+    set_failed_rule :_int unless _tmp
+    return _tmp
+  end
+
+  # real = < digits "." digits ("e" /[-+]/? /[0-9]/+)? > {number(text)}
+  def _real
+
+    _save = self.pos
+    while true # sequence
+      _text_start = self.pos
+
+      _save1 = self.pos
+      while true # sequence
+        _tmp = apply(:_digits)
+        unless _tmp
+          self.pos = _save1
+          break
+        end
+        _tmp = match_string(".")
+        unless _tmp
+          self.pos = _save1
+          break
+        end
+        _tmp = apply(:_digits)
+        unless _tmp
+          self.pos = _save1
+          break
+        end
+        _save2 = self.pos
+
+        _save3 = self.pos
+        while true # sequence
+          _tmp = match_string("e")
+          unless _tmp
+            self.pos = _save3
+            break
+          end
+          _save4 = self.pos
+          _tmp = scan(/\A(?-mix:[-+])/)
+          unless _tmp
+            _tmp = true
+            self.pos = _save4
+          end
+          unless _tmp
+            self.pos = _save3
+            break
+          end
+          _save5 = self.pos
+          _tmp = scan(/\A(?-mix:[0-9])/)
+          if _tmp
+            while true
+              _tmp = scan(/\A(?-mix:[0-9])/)
+              break unless _tmp
+            end
+            _tmp = true
+          else
+            self.pos = _save5
+          end
+          unless _tmp
+            self.pos = _save3
+          end
+          break
+        end # end sequence
+
+        unless _tmp
+          _tmp = true
+          self.pos = _save2
+        end
+        unless _tmp
+          self.pos = _save1
+        end
+        break
+      end # end sequence
+
+      if _tmp
+        text = get_text(_text_start)
+      end
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      @result = begin; number(text); end
+      _tmp = true
+      unless _tmp
+        self.pos = _save
+      end
+      break
+    end # end sequence
+
+    set_failed_rule :_real unless _tmp
     return _tmp
   end
 
@@ -452,9 +806,21 @@ class Poetics::Parser
   end
 
   Rules = {}
-  Rules[:_root] = rule_info("root", "- number? - !.")
+  Rules[:_root] = rule_info("root", "- value? - end")
+  Rules[:_end] = rule_info("end", "!.")
   Rules[:__hyphen_] = rule_info("-", "(\" \" | \"\\t\")*")
-  Rules[:_number] = rule_info("number", "position < /\\d+/ > {number(text)}")
+  Rules[:_value] = rule_info("value", "(number | boolean)")
+  Rules[:_boolean] = rule_info("boolean", "position (true | false | null | undefined)")
+  Rules[:_true] = rule_info("true", "\"true\" {true_value}")
+  Rules[:_false] = rule_info("false", "\"false\" {false_value}")
+  Rules[:_null] = rule_info("null", "\"null\" {null_value}")
+  Rules[:_undefined] = rule_info("undefined", "\"undefined\" {undefined_value}")
+  Rules[:_number] = rule_info("number", "position (real | hex | int)")
+  Rules[:_hexdigits] = rule_info("hexdigits", "/[0-9A-Fa-f]/")
+  Rules[:_hex] = rule_info("hex", "\"0x\" < hexdigits+ > {hexadecimal(text)}")
+  Rules[:_digits] = rule_info("digits", "(\"0\" | /[1-9]/ /[0-9]/*)")
+  Rules[:_int] = rule_info("int", "< digits > {number(text)}")
+  Rules[:_real] = rule_info("real", "< digits \".\" digits (\"e\" /[-+]/? /[0-9]/+)? > {number(text)}")
   Rules[:_line] = rule_info("line", "{ current_line }")
   Rules[:_column] = rule_info("column", "{ current_column }")
   Rules[:_position] = rule_info("position", "line:l column:c { position(l, c) }")
