@@ -35,6 +35,16 @@ scripts.
 
     rbx -S poetics -h
 
+The REPL presently just parses code and returns an S-Expression
+representation:
+
+    $ rbx -S poetics
+    > 42
+    [:number, 42.0, 1, 1]
+    > "hello, y'all"
+    [:string, "hello, y'all", 1, 1]
+    >
+
 
 Getting Help
 
