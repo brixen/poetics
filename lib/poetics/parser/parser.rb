@@ -360,7 +360,7 @@ class Poetics::Parser
     return _tmp
   end
 
-  # - = (" " | "\t")*
+  # - = (" " | "\t" | "\n")*
   def __hyphen_
     while true
 
@@ -370,6 +370,9 @@ class Poetics::Parser
         break if _tmp
         self.pos = _save1
         _tmp = match_string("\t")
+        break if _tmp
+        self.pos = _save1
+        _tmp = match_string("\n")
         break if _tmp
         self.pos = _save1
         break
@@ -382,11 +385,14 @@ class Poetics::Parser
     return _tmp
   end
 
-  # value = (number | boolean)
+  # value = (string | number | boolean)
   def _value
 
     _save = self.pos
     while true # choice
+      _tmp = apply(:_string)
+      break if _tmp
+      self.pos = _save
       _tmp = apply(:_number)
       break if _tmp
       self.pos = _save
@@ -760,6 +766,47 @@ class Poetics::Parser
     return _tmp
   end
 
+  # string = position "\"" < /[^\\"]*/ > "\"" {string_value(text)}
+  def _string
+
+    _save = self.pos
+    while true # sequence
+      _tmp = apply(:_position)
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      _tmp = match_string("\"")
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      _text_start = self.pos
+      _tmp = scan(/\A(?-mix:[^\\"]*)/)
+      if _tmp
+        text = get_text(_text_start)
+      end
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      _tmp = match_string("\"")
+      unless _tmp
+        self.pos = _save
+        break
+      end
+      @result = begin; string_value(text); end
+      _tmp = true
+      unless _tmp
+        self.pos = _save
+      end
+      break
+    end # end sequence
+
+    set_failed_rule :_string unless _tmp
+    return _tmp
+  end
+
   # line = { current_line }
   def _line
     @result = begin;  current_line ; end
@@ -808,8 +855,8 @@ class Poetics::Parser
   Rules = {}
   Rules[:_root] = rule_info("root", "- value? - end")
   Rules[:_end] = rule_info("end", "!.")
-  Rules[:__hyphen_] = rule_info("-", "(\" \" | \"\\t\")*")
-  Rules[:_value] = rule_info("value", "(number | boolean)")
+  Rules[:__hyphen_] = rule_info("-", "(\" \" | \"\\t\" | \"\\n\")*")
+  Rules[:_value] = rule_info("value", "(string | number | boolean)")
   Rules[:_boolean] = rule_info("boolean", "position (true | false | null | undefined)")
   Rules[:_true] = rule_info("true", "\"true\" {true_value}")
   Rules[:_false] = rule_info("false", "\"false\" {false_value}")
@@ -821,6 +868,7 @@ class Poetics::Parser
   Rules[:_digits] = rule_info("digits", "(\"0\" | /[1-9]/ /[0-9]/*)")
   Rules[:_int] = rule_info("int", "< digits > {number(text)}")
   Rules[:_real] = rule_info("real", "< digits \".\" digits (\"e\" /[-+]/? /[0-9]/+)? > {number(text)}")
+  Rules[:_string] = rule_info("string", "position \"\\\"\" < /[^\\\\\"]*/ > \"\\\"\" {string_value(text)}")
   Rules[:_line] = rule_info("line", "{ current_line }")
   Rules[:_column] = rule_info("column", "{ current_column }")
   Rules[:_position] = rule_info("position", "line:l column:c { position(l, c) }")
