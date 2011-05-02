@@ -23,5 +23,9 @@ module Poetics
     def undefined_value
       Undefined.new line, column
     end
+
+    def string_value(value)
+      String.new line, column, value
+    end
   end
 end

@@ -3,9 +3,10 @@
 root      = - value? - end
 
 end       = !.
--         = (" " | "\t")*
+-         = (" " | "\t" | "\n")*
 
-value     = number
+value     = string
+          | number
           | boolean
 
 
@@ -32,6 +33,8 @@ digits    = '0' | /[1-9]/ /[0-9]/*
 int       = < digits > ~number(text)
 real      = < digits '.' digits ('e' /[-+]/? /[0-9]/+)? > ~number(text)
 
+
+string    = position '"' < /[^\\"]*/ > '"' ~string_value(text)
 
 # keep track of column and line
 line      = { current_line }

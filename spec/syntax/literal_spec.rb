@@ -45,3 +45,16 @@ describe "The Undefined node" do
     parse { [:undefined, 1, 1] }
   end
 end
+
+describe "The String node" do
+  relates '"hello, world"' do
+    parse { [:string, "hello, world", 1, 1] }
+  end
+
+  relates <<-ruby do
+      "hello"
+    ruby
+
+    parse { [:string, "hello", 1, 7] }
+  end
+end

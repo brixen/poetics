@@ -1,6 +1,12 @@
 module Poetics
   module Syntax
-    class Number < Node
+    class Value < Node
+      def to_sexp
+        [sexp_name, value, line, column]
+      end
+    end
+
+    class Number < Value
       attr_accessor :value
 
       def initialize(line, column, value)
@@ -8,8 +14,8 @@ module Poetics
         @value = value.to_f
       end
 
-      def to_sexp
-        [:number, value, line, column]
+      def sexp_name
+        :number
       end
     end
 
@@ -40,6 +46,19 @@ module Poetics
     class Undefined < Boolean
       def sexp_name
         :undefined
+      end
+    end
+
+    class String < Value
+      attr_accessor :value
+
+      def initialize(line, column, text)
+        super
+        @value = text
+      end
+
+      def sexp_name
+        :string
       end
     end
   end
