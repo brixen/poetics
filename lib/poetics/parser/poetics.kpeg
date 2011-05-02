@@ -1,9 +1,37 @@
 %% name = Poetics::Parser
 
-root      = - number? - !.
+root      = - value? - end
 
+end       = !.
 -         = (" " | "\t")*
-number    = position < /\d+/ > ~number(text)
+
+value     = number
+          | boolean
+
+
+boolean   = position (
+            true
+          | false
+          | null
+          | undefined)
+
+true      = "true" ~true_value
+false     = "false" ~false_value
+null      = "null" ~null_value
+undefined = "undefined" ~undefined_value
+
+
+number    = position (
+            real
+          | hex
+          | int )
+
+hexdigits = /[0-9A-Fa-f]/
+hex       = '0x' < hexdigits+ > ~hexadecimal(text)
+digits    = '0' | /[1-9]/ /[0-9]/*
+int       = < digits > ~number(text)
+real      = < digits '.' digits ('e' /[-+]/? /[0-9]/+)? > ~number(text)
+
 
 # keep track of column and line
 line      = { current_line }
