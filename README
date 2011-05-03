@@ -45,6 +45,7 @@ representation:
     [:string, "hello, y'all", 1, 1]
     >
 
+To exit the REPL hit CTRL + d.
 
 Getting Help
 
