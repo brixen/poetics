@@ -1,3 +1,5 @@
+# What is Poetics?
+
 A native implementation of CoffeeScript [1] that runs on the Rubinius VM [2].
 
 Q. Whence comes the name Poetics?
@@ -13,7 +15,7 @@ A. CoffeeScript is an interesting language in its own right. Rather than
    using this native implementation.
 
 
-Installation
+## Installation
 
 First, install Rubinius:
 
@@ -28,7 +30,7 @@ Second, install Poetics:
     rbx -S gem install poetics
 
 
-Running Poetics
+## Running Poetics
 
 Poetics provides a REPL for exploratory programming or runs CoffeeScript
 scripts.
@@ -47,19 +49,20 @@ representation:
 
 To exit the REPL hit CTRL + d.
 
-Getting Help
+
+## Getting Help
 
 Poetics is a work in progress. If you encounter trouble, please file an issue
 at https://github.com/brixen/poetics/issues
 
 
-Contributing
+## Contributing
 
 If you find Poetics interesting and would like to help out, fork the project
 on Github and submit a pull request.
 
 
-People
+## People
 
 Poetics was created by Brian Ford (brixen) to force him to really learn
 Javascript and CoffeeScript.
@@ -67,12 +70,12 @@ Javascript and CoffeeScript.
 <add your name here>
 
 
-License
+## License
 
 Poetics is MIT licensed. See the LICENSE file.
 
 
-Credits
+## Credits
 
 Jeremy has created an very interesting language in CoffeeScript. This
 implementation steals bits and pieces from other projects:
