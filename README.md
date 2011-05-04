@@ -3,11 +3,13 @@
 A native implementation of CoffeeScript [1] that runs on the Rubinius VM [2].
 
 Q. Whence comes the name Poetics?
+
 A. Poetics is a partial anagram of the word CoffeeScript. It is also a nod to
    Jeremy Ashkenas, the author of CoffeeScript, and his interest in code as
    literature.
 
 Q. Why a native implementation?
+
 A. CoffeeScript is an interesting language in its own right. Rather than
    merely being a syntax layer on top of Javascript, and bound to expressing
    its semantics in those of Javascript, it deserves its own implementation.
@@ -67,7 +69,7 @@ on Github and submit a pull request.
 Poetics was created by Brian Ford (brixen) to force him to really learn
 Javascript and CoffeeScript.
 
-<add your name here>
+\<add your name here\>
 
 
 ## License
@@ -80,12 +82,13 @@ Poetics is MIT licensed. See the LICENSE file.
 Jeremy has created an very interesting language in CoffeeScript. This
 implementation steals bits and pieces from other projects:
 
-Rubinius (https://github.com/evanphx/rubinius/)
-KPeg (https://github.com/evanphx/kpeg/)
-Atomy (https://github.com/vito/atomy/)
-Poison (https://github.com/brixen/poison/)
-Talon (https://github.com/evanphx/talon/)
+* Rubinius (https://github.com/evanphx/rubinius/)
+* KPeg (https://github.com/evanphx/kpeg/)
+* Atomy (https://github.com/vito/atomy/)
+* Poison (https://github.com/brixen/poison/)
+* Talon (https://github.com/evanphx/talon/)
 
 
 [1] CoffeeScript (http://jashkenas.github.com/coffee-script/)
+
 [2] Rubinius (http://rubini.us)
