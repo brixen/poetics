@@ -25,7 +25,7 @@ First, install Rubinius:
 
     rvm install rbx
 
-  2. Or directly (http://rubini.us/doc/en/what-is-rubinius/). 
+  2. Or directly (http://rubini.us/doc/en/what-is-rubinius/).
 
 Second, install Poetics:
 
@@ -90,5 +90,4 @@ implementation steals bits and pieces from other projects:
 
 
 [1] CoffeeScript (http://jashkenas.github.com/coffee-script/)
-
 [2] Rubinius (http://rubini.us)
