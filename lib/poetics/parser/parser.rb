@@ -20,8 +20,8 @@ class Poetics::Parser
     end
 
     attr_reader :string
-    attr_reader :result, :failing_rule_offset
-    attr_accessor :pos
+    attr_reader :failing_rule_offset
+    attr_accessor :result, :pos
 
     # STANDALONE START
     def current_column(target=pos)
@@ -234,6 +234,7 @@ class Poetics::Parser
       begin
         if val = __send__(rule, *args)
           other.pos = @pos
+          other.result = @result
         else
           other.set_failed_rule "#{self.class}##{rule}"
         end
@@ -241,6 +242,43 @@ class Poetics::Parser
       ensure
         @pos = old_pos
         @string = old_string
+      end
+    end
+
+    def apply_with_args(rule, *args)
+      memo_key = [rule, args]
+      if m = @memoizations[memo_key][@pos]
+        m.inc!
+
+        prev = @pos
+        @pos = m.pos
+        if m.ans.kind_of? LeftRecursive
+          m.ans.detected = true
+          return nil
+        end
+
+        @result = m.result
+
+        return m.ans
+      else
+        lr = LeftRecursive.new(false)
+        m = MemoEntry.new(lr, @pos)
+        @memoizations[memo_key][@pos] = m
+        start_pos = @pos
+
+        ans = __send__ rule, *args
+
+        m.move! ans, @pos, @result
+
+        # Don't bother trying to grow the left recursion
+        # if it's failing straight away (thus there is no seed)
+        if ans and lr.detected
+          return grow_lr(rule, args, start_pos, m)
+        else
+          return ans
+        end
+
+        return ans
       end
     end
 
@@ -271,7 +309,7 @@ class Poetics::Parser
         # Don't bother trying to grow the left recursion
         # if it's failing straight away (thus there is no seed)
         if ans and lr.detected
-          return grow_lr(rule, start_pos, m)
+          return grow_lr(rule, nil, start_pos, m)
         else
           return ans
         end
@@ -280,12 +318,16 @@ class Poetics::Parser
       end
     end
 
-    def grow_lr(rule, start_pos, m)
+    def grow_lr(rule, args, start_pos, m)
       while true
         @pos = start_pos
         @result = m.result
 
-        ans = __send__ rule
+        if args
+          ans = __send__ rule, *args
+        else
+          ans = __send__ rule
+        end
         return nil unless ans
 
         break if @pos <= m.pos
