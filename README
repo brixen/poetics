@@ -1,23 +1,28 @@
-# What is Poetics?
+1. What is Poetics?
 
 A native implementation of CoffeeScript [1] that runs on the Rubinius VM [2].
 
-Q. Whence comes the name Poetics?
+  Q. Whence comes the name Poetics?
 
-A. Poetics is a partial anagram of the word CoffeeScript. It is also a nod to
-   Jeremy Ashkenas, the author of CoffeeScript, and his interest in code as
-   literature.
+  A. Poetics is a partial anagram of the word CoffeeScript. It is also a nod
+     to Jeremy Ashkenas, the author of CoffeeScript, and his interest in code
+     as literature.
 
-Q. Why a native implementation?
+  Q. Why a native implementation?
 
-A. CoffeeScript is an interesting language in its own right. Rather than
-   merely being a syntax layer on top of Javascript, and bound to expressing
-   its semantics in those of Javascript, it deserves its own implementation.
-   Many of the reasons to use CoffeeScript in Node.js would also apply to
-   using this native implementation.
+  A. CoffeeScript is an interesting language in its own right. Rather than
+     merely being a syntax layer on top of Javascript, and bound to expressing
+     its semantics in those of Javascript, it deserves its own implementation.
+     Many of the reasons to use CoffeeScript in Node.js would also apply to
+     using this native implementation.
 
 
-## Installation
+2. License
+
+Poetics is MIT licensed. See the LICENSE file.
+
+
+3. Installation
 
 First, install Rubinius:
 
@@ -32,7 +37,7 @@ Second, install Poetics:
     rbx -S gem install poetics
 
 
-## Running Poetics
+4. Running Poetics
 
 Poetics provides a REPL for exploratory programming or runs CoffeeScript
 scripts.
@@ -52,32 +57,27 @@ representation:
 To exit the REPL hit CTRL + d.
 
 
-## Getting Help
+5. Getting Help
 
 Poetics is a work in progress. If you encounter trouble, please file an issue
 at https://github.com/brixen/poetics/issues
 
 
-## Contributing
+6. Contributing
 
 If you find Poetics interesting and would like to help out, fork the project
 on Github and submit a pull request.
 
 
-## People
+7. People
 
 Poetics was created by Brian Ford (brixen) to force him to really learn
 Javascript and CoffeeScript.
 
-\<add your name here\>
+<add your name here>
 
 
-## License
-
-Poetics is MIT licensed. See the LICENSE file.
-
-
-## Credits
+8. Credits
 
 Jeremy has created an very interesting language in CoffeeScript. This
 implementation steals bits and pieces from other projects:
