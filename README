@@ -82,7 +82,7 @@ Javascript and CoffeeScript.
 Jeremy has created an very interesting language in CoffeeScript. This
 implementation steals bits and pieces from other projects:
 
-* Rubinius (https://github.com/evanphx/rubinius/)
+* Rubinius (https://github.com/rubinius/rubinius/)
 * KPeg (https://github.com/evanphx/kpeg/)
 * Atomy (https://github.com/vito/atomy/)
 * Poison (https://github.com/brixen/poison/)
